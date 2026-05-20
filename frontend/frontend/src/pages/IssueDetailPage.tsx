@@ -88,84 +88,71 @@ export const IssueDetailPage = () => {
 
   return (
     <div className="container">
-      <h1>Issue Detail</h1>
+      <div className="page-card">
+        <div className="page-header">
+          <div>
+            <h1>Issue Detail</h1>
+            <p className="page-subtitle">
+              Update the issue and manage its attachments.
+            </p>
+          </div>
+        </div>
 
-      <IssueForm
-        issue={issue}
-        onSubmit={handleUpdate}
-      />
+        <IssueForm
+          issue={issue}
+          onSubmit={handleUpdate}
+        />
 
-      <hr />
+        <hr className="divider" />
 
-      <h2>Attachments</h2>
+        <h2>Attachments</h2>
 
-      <FileUpload
-        onUpload={handleUpload}
-      />
+        <FileUpload
+          onUpload={handleUpload}
+        />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "16px",
-          marginTop: "16px",
-        }}
-      >
-        {issue.attachments.map(
-          (attachment) => {
-            const isImage =
-              attachment.fileUrl.match(
-                /\.(jpg|jpeg|png|gif|webp)$/i
-              );
+        <div className="attachment-grid">
+          {issue.attachments.map(
+            (attachment) => {
+              const isImage =
+                attachment.fileUrl.match(
+                  /\.(jpg|jpeg|png|gif|webp)$/i
+                );
 
-            return (
-              <div
-                key={attachment.id}
-                style={{
-                  border:
-                    "1px solid #ddd",
-                  padding: "12px",
-                  borderRadius: "8px",
-                }}
-              >
-                {isImage ? (
-                  <img
-                    src={attachment.fileUrl}
-                    alt={
-                      attachment.fileName
-                    }
-                    style={{
-                      width: "100%",
-                      height: "160px",
-                      objectFit: "cover",
-                      borderRadius: "6px",
-                    }}
-                  />
-                ) : (
-                  <p>
-                    {
-                      attachment.fileName
-                    }
-                  </p>
-                )}
-
-                <button
-                  style={{
-                    marginTop: "12px",
-                  }}
-                  onClick={() =>
-                    handleRemoveAttachment(
-                      attachment.id
-                    )
-                  }
+              return (
+                <div
+                  className="attachment-card"
+                  key={attachment.id}
                 >
-                  Remove
-                </button>
-              </div>
-            );
-          }
-        )}
+                  {isImage ? (
+                    <img
+                      src={attachment.fileUrl}
+                      alt={
+                        attachment.fileName
+                      }
+                    />
+                  ) : (
+                    <p>
+                      {
+                        attachment.fileName
+                      }
+                    </p>
+                  )}
+
+                  <button
+                    onClick={() =>
+                      handleRemoveAttachment(
+                        attachment.id
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              );
+            }
+          )}
+        </div>
       </div>
     </div>
   );

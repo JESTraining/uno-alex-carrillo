@@ -9,45 +9,70 @@ export const IssueListPage = () => {
     setPage,
   } = useIssues();
 
+  const currentPage =
+    data?.page && data.page > 0
+      ? data.page
+      : 1;
+
+  const totalPages =
+    data?.totalPages && data.totalPages > 0
+      ? data.totalPages
+      : 1;
+
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="container">
+        <p className="loading-state">
+          Loading issues...
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="container">
-      <h1>Issues</h1>
+      <div className="page-card">
+        <div className="page-header">
+          <div>
+            <h1>Issues</h1>
+            <p className="page-subtitle">
+              Review, prioritize, and open issue details.
+            </p>
+          </div>
+        </div>
 
-      <IssueTable
-        issues={data?.items || []}
-      />
+        <IssueTable
+          issues={data?.items || []}
+        />
 
-      <div>
-        <button
-          disabled={
-            !data?.hasPreviousPage
-          }
-          onClick={() =>
-            setPage(page - 1)
-          }
-        >
-          Previous
-        </button>
+        <div className="pagination">
+          <button
+            disabled={
+              !data?.hasPreviousPage
+            }
+            onClick={() =>
+              setPage(page - 1)
+            }
+          >
+            Previous
+          </button>
 
-        <span>
-          Page {data?.page} of{" "}
-          {data?.totalPages}
-        </span>
+          <span>
+            Page {currentPage} of{" "}
+            {totalPages}
+          </span>
 
-        <button
-          disabled={
-            !data?.hasNextPage
-          }
-          onClick={() =>
-            setPage(page + 1)
-          }
-        >
-          Next
-        </button>
+          <button
+            disabled={
+              !data?.hasNextPage
+            }
+            onClick={() =>
+              setPage(page + 1)
+            }
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

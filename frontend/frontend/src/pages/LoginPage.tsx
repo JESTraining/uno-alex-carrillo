@@ -33,45 +33,59 @@ export const LoginPage = () => {
 
   return (
     <div className="container">
-      <h1>Login</h1>
-
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <div>
-          <label>Email</label>
-
-          <input
-            type="email"
-            {...register("email", {
-              required: true,
-            })}
-          />
-
-          {errors.email && (
-            <p>Email is required</p>
-          )}
+      <div className="page-card">
+        <div className="page-header">
+          <div>
+            <h1>Login</h1>
+            <p className="page-subtitle">
+              Access the issue tracker dashboard.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <label>Password</label>
+        <form
+          className="form form--narrow"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="form-field">
+            <label>Email</label>
 
-          <input
-            type="password"
-            {...register("password", {
-              required: true,
-            })}
-          />
+            <input
+              type="email"
+              {...register("email", {
+                required: true,
+              })}
+            />
 
-          {errors.password && (
-            <p>Password is required</p>
-          )}
-        </div>
+            {errors.email && (
+              <p className="form-error">
+                Email is required
+              </p>
+            )}
+          </div>
 
-        <button type="submit">
-          Login
-        </button>
-      </form>
+          <div className="form-field">
+            <label>Password</label>
+
+            <input
+              type="password"
+              {...register("password", {
+                required: true,
+              })}
+            />
+
+            {errors.password && (
+              <p className="form-error">
+                Password is required
+              </p>
+            )}
+          </div>
+
+          <button type="submit">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

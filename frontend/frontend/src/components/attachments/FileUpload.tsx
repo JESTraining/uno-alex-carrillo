@@ -66,7 +66,7 @@ export const FileUpload = ({
   };
 
   return (
-    <div>
+    <div className="file-upload">
       <input
         type="file"
         accept="image/*"
@@ -75,7 +75,7 @@ export const FileUpload = ({
       />
 
       {progress > 0 && (
-        <p>
+        <p className="page-subtitle">
           Uploading: {progress}%
         </p>
       )}

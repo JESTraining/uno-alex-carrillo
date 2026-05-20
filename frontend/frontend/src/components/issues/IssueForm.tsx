@@ -19,8 +19,11 @@ export const IssueForm = ({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
+    <form
+      className="form"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <div className="form-field">
         <label>Title</label>
 
         <input
@@ -31,7 +34,7 @@ export const IssueForm = ({
         />
 
         {errors.title && (
-          <p>
+          <p className="form-error">
             Title must have at least 3 characters
           </p>
         )}

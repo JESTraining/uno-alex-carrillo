@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { Navbar } from "../components/layout/Navbar";
 
 type Props = {
   children: React.ReactNode;
@@ -16,5 +17,10 @@ export const ProtectedRoute = ({
     );
   }
 
-  return children;
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  );
 };

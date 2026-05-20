@@ -9,33 +9,55 @@ export const IssueTable = ({
   issues,
 }: Props) => {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Priority</th>
-          <th>Status</th>
-          <th>Assignee</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {issues.map((issue) => (
-          <tr key={issue.id}>
-            <td>
-              <Link to={`/issues/${issue.id}`}>
-                {issue.title}
-              </Link>
-            </td>
-
-            <td>{issue.priority}</td>
-
-            <td>{issue.status}</td>
-
-            <td>{issue.assignee}</td>
+    <div className="table-shell">
+      <table className="issue-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Assignee</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          {issues.length === 0 && (
+            <tr>
+              <td
+                className="issue-table__empty"
+                colSpan={4}
+              >
+                No issues found.
+              </td>
+            </tr>
+          )}
+
+          {issues.map((issue) => (
+            <tr key={issue.id}>
+              <td
+                className="issue-table__title"
+                data-label="Title"
+              >
+                <Link to={`/issues/${issue.id}`}>
+                  {issue.title}
+                </Link>
+              </td>
+
+              <td data-label="Priority">
+                {issue.priority}
+              </td>
+
+              <td data-label="Status">
+                {issue.status}
+              </td>
+
+              <td data-label="Assignee">
+                {issue.assignee || "Unassigned"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };

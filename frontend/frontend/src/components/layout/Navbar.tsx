@@ -15,27 +15,13 @@ export const Navbar = () => {
   };
 
   return (
-    <nav
-      style={{
-        display: "flex",
-        justifyContent:
-          "space-between",
-        alignItems: "center",
-        padding: "16px 24px",
-        borderBottom:
-          "1px solid #ddd",
-      }}
-    >
-      <h2>Issue Tracker</h2>
+    <nav className="app-nav">
+      <h2 className="app-nav__brand">
+        Issue Tracker
+      </h2>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-        }}
-      >
-        <span>
+      <div className="app-nav__actions">
+        <span className="app-nav__user">
           Welcome {user.name}
         </span>
 
