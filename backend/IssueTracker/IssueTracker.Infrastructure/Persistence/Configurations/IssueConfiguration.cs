@@ -28,7 +28,7 @@ public class IssueConfiguration : IEntityTypeConfiguration<Issue>
 
         builder.Property(i => i.CreatedAt)
             .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("now()");
 
         builder.Property(i => i.UpdatedAt)
             .IsRequired(false);

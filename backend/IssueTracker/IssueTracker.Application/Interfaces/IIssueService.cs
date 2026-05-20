@@ -1,4 +1,5 @@
 using IssueTracker.Application.DTOs;
+using IssueTracker.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
 namespace IssueTracker.Application.Interfaces;
@@ -8,7 +9,7 @@ public interface IIssueService
     Task<PaginatedResponseDto<IssueDto>> GetIssuesAsync(
         int page = 1,
         int pageSize = 10,
-        string? status = null);
+        IssueStatus? status = null);
 
     Task<IssueDto> GetIssueByIdAsync(Guid id);
 
@@ -18,9 +19,7 @@ public interface IIssueService
 
     Task DeleteIssueAsync(Guid id);
 
-    Task<AttachmentDto> UploadAttachmentAsync(Guid issueId, IFormFile file);
-
-    Task<FileStream> DownloadAttachmentAsync(Guid issueId, Guid attachmentId);
+    Task<AttachmentDto> UploadAttachmentAsync(Guid issueId, IFormFile? file);
 
     Task DeleteAttachmentAsync(Guid issueId, Guid attachmentId);
 }

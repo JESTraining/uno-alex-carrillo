@@ -1,4 +1,5 @@
-﻿using IssueTracker.Application.Abstractions;
+﻿using IssueTracker.Application.Common.Options;
+using IssueTracker.Application.Interfaces;
 using IssueTracker.Infrastructure.Persistence;
 using IssueTracker.Infrastructure.Repositories;
 using IssueTracker.Infrastructure.Storage;
@@ -14,6 +15,9 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.Configure<FileUploadOptions>(
+            configuration.GetSection("FileUpload"));
+
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseNpgsql(
@@ -22,8 +26,8 @@ public static class DependencyInjection
         });
 
         // Register DbContext as IAppDbContext for Application layer
-        services.AddScoped<IAppDbContext>(sp =>
-            sp.GetRequiredService<AppDbContext>());
+        services.AddScoped(sp =>
+            (IAppDbContext)sp.GetRequiredService<AppDbContext>());
 
         // Register generic repository implementing Application abstract interface
         services.AddScoped(
@@ -31,9 +35,9 @@ public static class DependencyInjection
             typeof(Repository<>));
 
         // Register file storage service
-        services.AddScoped<
-            Application.Abstractions.IFileStorageService,
-            LocalFileStorageService>();
+        services.AddScoped<LocalFileStorageService>();
+        services.AddScoped<IFileStorageService>(sp =>
+            sp.GetRequiredService<LocalFileStorageService>());
 
         return services;
     }

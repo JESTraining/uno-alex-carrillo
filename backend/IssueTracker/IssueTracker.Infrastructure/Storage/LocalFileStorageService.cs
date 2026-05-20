@@ -1,23 +1,27 @@
 ﻿using Microsoft.AspNetCore.Http;
 using IssueTracker.Domain.Exceptions;
-using IAppFileStorageService = IssueTracker.Application.Abstractions.IFileStorageService;
+using IssueTracker.Application.Interfaces;
+using Microsoft.Extensions.Options;
+using IssueTracker.Application.Common.Options;
 
 namespace IssueTracker.Infrastructure.Storage;
 
 public class LocalFileStorageService
-    : IAppFileStorageService
+    : IFileStorageService
 {
+    private readonly FileUploadOptions _options;
+
+    public LocalFileStorageService(
+        IOptions<FileUploadOptions> options)
+    {
+        _options = options.Value;
+    }
+
     public async Task<string> SaveFileAsync(
         IFormFile file,
         Guid issueId)
     {
-        const long maxFileSize = 5 * 1024 * 1024;
-        var allowedExtensions = new[]
-        {
-            ".jpg",
-            ".jpeg",
-            ".png"
-        };
+        var maxFileSize = _options.MaxFileSizeMB * 1024 * 1024;
 
         if (file.Length > maxFileSize)
         {
@@ -27,7 +31,7 @@ public class LocalFileStorageService
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-        if (!allowedExtensions.Contains(extension))
+        if (!_options.AllowedExtensions.Contains(extension))
         {
             throw new BadRequestException(
                 "Invalid file type.");

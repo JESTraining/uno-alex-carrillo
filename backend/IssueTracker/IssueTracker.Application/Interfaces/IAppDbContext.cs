@@ -1,11 +1,8 @@
 using IssueTracker.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace IssueTracker.Application.Abstractions;
+namespace IssueTracker.Application.Interfaces;
 
-/// <summary>
-/// Abstraction for database context
-/// </summary>
 public interface IAppDbContext
 {
     DbSet<Issue> Issues { get; }

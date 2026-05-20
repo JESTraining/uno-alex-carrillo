@@ -1,5 +1,4 @@
 using AutoMapper;
-using IssueTracker.Application.Abstractions;
 using IssueTracker.Application.DTOs;
 using IssueTracker.Application.Interfaces;
 using IssueTracker.Domain.Entities;
@@ -38,25 +37,11 @@ public class IssueService : IIssueService
     public async Task<PaginatedResponseDto<IssueDto>> GetIssuesAsync(
         int page = 1,
         int pageSize = 10,
-        string? status = null)
+        IssueStatus? status = null)
     {
         // Validate pagination parameters
         if (page < 1) page = 1;
         if (pageSize < 1 || pageSize > 100) pageSize = 10;
-
-        // Parse status filter
-        IssueStatus? statusFilter = null;
-        if (!string.IsNullOrWhiteSpace(status))
-        {
-            if (Enum.TryParse<IssueStatus>(status, true, out var parsedStatus))
-            {
-                statusFilter = parsedStatus;
-            }
-            else
-            {
-                throw new BadRequestException($"Invalid status value: {status}");
-            }
-        }
 
         // Query with eager loading to prevent N+1
         var query = _context.Issues
@@ -65,9 +50,9 @@ public class IssueService : IIssueService
             .AsQueryable();
 
         // Apply filtering
-        if (statusFilter.HasValue)
+        if (status.HasValue)
         {
-            query = query.Where(i => i.Status == statusFilter.Value);
+            query = query.Where(i => i.Status == status.Value);
         }
 
         // Get total count
@@ -174,8 +159,15 @@ public class IssueService : IIssueService
         await _issueRepository.DeleteAsync(issue);
     }
 
-    public async Task<AttachmentDto> UploadAttachmentAsync(Guid issueId, IFormFile file)
+    public async Task<AttachmentDto> UploadAttachmentAsync(Guid issueId, IFormFile? file)
     {
+        //verify file is not null and has content
+        if (file == null || file.Length == 0)
+        {
+            throw new BadRequestException(
+                "File is required.");
+        }
+
         // Verify issue exists
         var issue = await _issueRepository.GetByIdAsync(issueId);
         if (issue == null)
@@ -199,33 +191,6 @@ public class IssueService : IIssueService
         await _attachmentRepository.AddAsync(attachment);
 
         return _mapper.Map<AttachmentDto>(attachment);
-    }
-
-    public async Task<FileStream> DownloadAttachmentAsync(Guid issueId, Guid attachmentId)
-    {
-        // Verify issue exists
-        var issue = await _issueRepository.GetByIdAsync(issueId);
-        if (issue == null)
-        {
-            throw new NotFoundException(nameof(Issue), issueId);
-        }
-
-        // Get attachment
-        var attachment = await _context.Attachments
-            .FirstOrDefaultAsync(a => a.Id == attachmentId && a.IssueId == issueId);
-
-        if (attachment == null)
-        {
-            throw new NotFoundException(nameof(Attachment), attachmentId);
-        }
-
-        // Return file stream
-        if (!File.Exists(attachment.FilePath))
-        {
-            throw new NotFoundException($"File not found at path: {attachment.FilePath}");
-        }
-
-        return File.OpenRead(attachment.FilePath);
     }
 
     public async Task DeleteAttachmentAsync(Guid issueId, Guid attachmentId)

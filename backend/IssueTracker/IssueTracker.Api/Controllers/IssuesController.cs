@@ -3,14 +3,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using IssueTracker.Application.DTOs;
 using IssueTracker.Application.Interfaces;
+using IssueTracker.Domain.Enums;
 
 namespace IssueTracker.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class IssuesController(IIssueService issueService) : ControllerBase
+public class IssuesController : ControllerBase
 {
+    private readonly IIssueService _issueService;
+
+    public IssuesController(
+        IIssueService issueService)
+    {
+        _issueService = issueService;
+    }
     /// <summary>
     /// Gets a paginated list of issues with optional status filtering
     /// </summary>
@@ -21,13 +29,12 @@ public class IssuesController(IIssueService issueService) : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(PaginatedResponseDto<IssueDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<PaginatedResponseDto<IssueDto>>> GetIssues(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? status = null)
+        [FromQuery] IssueStatus? status = null)
     {
-        var result = await issueService.GetIssuesAsync(page, pageSize, status);
+        var result = await _issueService.GetIssuesAsync(page, pageSize, status);
         return Ok(result);
     }
 
@@ -39,10 +46,9 @@ public class IssuesController(IIssueService issueService) : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(IssueDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IssueDto>> GetIssue(Guid id)
     {
-        var result = await issueService.GetIssueByIdAsync(id);
+        var result = await _issueService.GetIssueByIdAsync(id);
         return Ok(result);
     }
 
@@ -54,10 +60,9 @@ public class IssuesController(IIssueService issueService) : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IssueDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IssueDto>> CreateIssue(CreateIssueDto createIssueDto)
     {
-        var result = await issueService.CreateIssueAsync(createIssueDto);
+        var result = await _issueService.CreateIssueAsync(createIssueDto);
         return CreatedAtAction(nameof(GetIssue), new { id = result.Id }, result);
     }
 
@@ -71,10 +76,9 @@ public class IssuesController(IIssueService issueService) : ControllerBase
     [ProducesResponseType(typeof(IssueDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IssueDto>> UpdateIssue(Guid id, UpdateIssueDto updateIssueDto)
     {
-        var result = await issueService.UpdateIssueAsync(id, updateIssueDto);
+        var result = await _issueService.UpdateIssueAsync(id, updateIssueDto);
         return Ok(result);
     }
 
@@ -86,10 +90,9 @@ public class IssuesController(IIssueService issueService) : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteIssue(Guid id)
     {
-        await issueService.DeleteIssueAsync(id);
+        await _issueService.DeleteIssueAsync(id);
         return NoContent();
     }
 
@@ -100,42 +103,16 @@ public class IssuesController(IIssueService issueService) : ControllerBase
     /// <param name="file">File to upload (jpg, jpeg, png)</param>
     /// <returns>Attachment details</returns>
     [HttpPost("{issueId:guid}/attachments")]
+    [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(AttachmentDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [RequestSizeLimit(5 * 1024 * 1024)] // 5MB
     public async Task<ActionResult<AttachmentDto>> UploadAttachment(
         Guid issueId,
-        IFormFile file)
+        IFormFile? file)
     {
-        if (file == null || file.Length == 0)
-        {
-            return BadRequest("File is required");
-        }
-
-        var result = await issueService.UploadAttachmentAsync(issueId, file);
-        return CreatedAtAction(nameof(DownloadAttachment), 
-            new { issueId, fileId = result.Id }, result);
-    }
-
-    /// <summary>
-    /// Downloads an attachment from an issue
-    /// </summary>
-    /// <param name="issueId">Issue ID</param>
-    /// <param name="fileId">Attachment ID</param>
-    /// <returns>File stream</returns>
-    [HttpGet("{issueId:guid}/attachments/{fileId:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> DownloadAttachment(Guid issueId, Guid fileId)
-    {
-        var fileStream = await issueService.DownloadAttachmentAsync(issueId, fileId);
-
-        // Return file with proper content type
-        return File(fileStream, "application/octet-stream", 
-            $"attachment_{fileId}");
+        var result = await _issueService.UploadAttachmentAsync(issueId, file);
+        return Created(result.FileUrl, result);
     }
 
     /// <summary>
@@ -147,10 +124,9 @@ public class IssuesController(IIssueService issueService) : ControllerBase
     [HttpDelete("{issueId:guid}/attachments/{fileId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteAttachment(Guid issueId, Guid fileId)
     {
-        await issueService.DeleteAttachmentAsync(issueId, fileId);
+        await _issueService.DeleteAttachmentAsync(issueId, fileId);
         return NoContent();
     }
 }

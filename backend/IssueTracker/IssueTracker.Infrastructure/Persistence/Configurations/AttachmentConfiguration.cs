@@ -20,7 +20,7 @@ public class AttachmentConfiguration : IEntityTypeConfiguration<Attachment>
 
         builder.Property(a => a.UploadedAt)
             .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("now()");
 
         builder.Property(a => a.IssueId)
             .IsRequired();

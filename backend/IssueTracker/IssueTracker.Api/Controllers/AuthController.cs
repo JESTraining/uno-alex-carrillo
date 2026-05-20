@@ -1,66 +1,40 @@
-using IssueTracker.Api.DTOs;
-using IssueTracker.Api.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using IssueTracker.Application.DTOs;
+using IssueTracker.Application.Interfaces;
 
 namespace IssueTracker.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(ITokenService tokenService) : ControllerBase
+public class AuthController : ControllerBase
 {
-    // Test user hardcoded para demostración
-    private const string TestUserId = "12345678-1234-1234-1234-123456789012";
-    private const string TestUserEmail = "test@issuetracker.com";
-    private const string TestUserPassword = "test123";
-    private const string TestUserName = "Test User";
+    private readonly IAuthenticationService _authService;
 
-    /// <summary>
-    /// Login with test credentials
-    /// </summary>
-    /// <param name="loginDto">Login credentials</param>
-    /// <returns>JWT token</returns>
-    [HttpPost("login")]
-    [ProducesResponseType(typeof(TokenResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Login(LoginDto loginDto)
+    public AuthController(IAuthenticationService authService)
     {
-        // Simple hardcoded test user validation
-        if (loginDto.Email != TestUserEmail || loginDto.Password != TestUserPassword)
-        {
-            return Unauthorized(new { message = "Invalid email or password" });
-        }
-
-        // Generate JWT token
-        var token = tokenService.GenerateToken(TestUserId, TestUserEmail, TestUserName);
-        var expirationMinutes = 60;
-
-        return Ok(new TokenResponseDto
-        {
-            AccessToken = token,
-            ExpiresIn = expirationMinutes * 60,
-            User = new UserInfoDto
-            {
-                Id = TestUserId,
-                Email = TestUserEmail,
-                Name = TestUserName
-            }
-        });
+        _authService = authService;
     }
 
     /// <summary>
-    /// Get test user credentials for demonstration
+    /// Login with email and password to get JWT token
     /// </summary>
-    /// <returns>Test user info</returns>
-    [HttpGet("test-credentials")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-    public IActionResult GetTestCredentials()
+    /// <param name="request">Login credentials (email and password)</param>
+    /// <returns>JWT token and user information</returns>
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto request)
     {
-        return Ok(new
+        try
         {
-            email = TestUserEmail,
-            password = TestUserPassword,
-            message = "Use these credentials to test the API"
-        });
+            var result = await _authService.LoginAsync(request);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(new { message = "Invalid email or password" });
+        }
     }
 }

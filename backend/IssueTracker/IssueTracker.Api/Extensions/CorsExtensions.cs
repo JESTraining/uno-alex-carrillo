@@ -1,55 +1,30 @@
-namespace IssueTracker.Api.Extensions;
+﻿namespace IssueTracker.Api.Extensions;
 
 public static class CorsExtensions
 {
+    public const string PolicyName = "CorsPolicy";
+
     public static IServiceCollection AddCorsPolicy(
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var frontendUrl =
+            configuration["Frontend:Url"]
+            ?? "http://localhost:8080";
+
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", policy =>
-            {
-                policy
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
-            });
-
-            // Alternative: configure specific origins for production
-            var allowedOrigins = configuration
-                .GetSection("AllowedOrigins")
-                .Get<string[]>() ?? [];
-
-            if (allowedOrigins.Length > 0)
-            {
-                options.AddPolicy("AllowSpecific", policy =>
+            options.AddPolicy(
+                PolicyName,
+                policy =>
                 {
                     policy
-                        .WithOrigins(allowedOrigins)
-                        .AllowAnyMethod()
+                        .WithOrigins(frontendUrl)
                         .AllowAnyHeader()
-                        .AllowCredentials();
+                        .AllowAnyMethod();
                 });
-            }
         });
 
         return services;
-    }
-
-    public static WebApplication UseCorsPolicy(
-        this WebApplication app,
-        IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseCors("AllowAll");
-        }
-        else
-        {
-            app.UseCors("AllowSpecific");
-        }
-
-        return app;
     }
 }

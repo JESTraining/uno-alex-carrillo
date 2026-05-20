@@ -1,8 +1,5 @@
-namespace IssueTracker.Application.Abstractions;
+namespace IssueTracker.Application.Interfaces;
 
-/// <summary>
-/// Generic repository interface for data access abstraction
-/// </summary>
 public interface IRepository<T> where T : class
 {
     Task<T?> GetByIdAsync(Guid id);

@@ -1,4 +1,4 @@
-﻿using IssueTracker.Application.Abstractions;
+﻿using IssueTracker.Application.Interfaces;
 using IssueTracker.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
