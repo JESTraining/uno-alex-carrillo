@@ -3,6 +3,12 @@ import { issueService } from "../services/issueService";
 import type { Issue } from "../types/issue";
 import type { PaginatedResponse } from "../types/pagination";
 
+type RefreshOptions = {
+  updater?: (
+    data: PaginatedResponse<Issue>
+  ) => PaginatedResponse<Issue>;
+};
+
 export const useIssues = () => {
   const [data, setData] =
     useState<
@@ -35,10 +41,29 @@ export const useIssues = () => {
     }
   };
 
+  const refresh = async (
+    options?: RefreshOptions
+  ) => {
+    if (options?.updater) {
+      const { updater } = options;
+
+      setData((currentData) =>
+        currentData
+          ? updater(currentData)
+          : currentData
+      );
+
+      return;
+    }
+
+    await loadIssues();
+  };
+
   return {
     data,
     loading,
     page,
     setPage,
+    refresh,
   };
 };

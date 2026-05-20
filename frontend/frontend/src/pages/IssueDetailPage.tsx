@@ -1,17 +1,36 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import type { Issue } from "../types/issue";
+import {
+  Link,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+import { toast } from "react-toastify";
+import type {
+  Issue,
+  UpdateIssueRequest,
+} from "../types/issue";
 import { issueService } from "../services/issueService";
 import { attachmentService } from "../services/attachmentService";
 import { IssueForm } from "../components/issues/IssueForm";
 import { FileUpload } from "../components/attachments/FileUpload";
+import { useAssignees } from "../hooks/useAssignees";
+import { resolveApiAssetUrl } from "../services/api/url";
+
+const imageExtensions =
+  /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
 
 export const IssueDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [issue, setIssue] = useState<Issue | null>(null);
 
   const [loading, setLoading] = useState(true);
+
+  const {
+    assignees,
+    loading: assigneesLoading,
+  } = useAssignees();
 
   useEffect(() => {
     if (!id) return;
@@ -33,13 +52,14 @@ export const IssueDetailPage = () => {
   };
 
   const handleUpdate = async (
-    values: Partial<Issue>
+    values: UpdateIssueRequest
   ) => {
     if (!id) return;
 
     await issueService.update(id, values);
 
-    await loadIssue(id);
+    toast.success("Issue updated successfully");
+    navigate("/issues");
   };
 
   const handleUpload = async (
@@ -52,14 +72,21 @@ export const IssueDetailPage = () => {
       file
     );
 
+    toast.success("Attachment uploaded successfully");
     await loadIssue(id);
   };
 
-  const handleRemoveAttachment = (
+  const handleRemoveAttachment = async (
     attachmentId: string
   ) => {
-    if (!issue) return;
+    if (!issue || !id) return;
 
+    await attachmentService.delete(
+      id,
+      attachmentId
+    );
+
+    toast.success("Attachment removed successfully");
     setIssue({
       ...issue,
       attachments:
@@ -107,6 +134,8 @@ export const IssueDetailPage = () => {
 
         <IssueForm
           issue={issue}
+          assignees={assignees}
+          assigneesLoading={assigneesLoading}
           onSubmit={handleUpdate}
         />
 
@@ -135,8 +164,16 @@ export const IssueDetailPage = () => {
           {issue.attachments.map(
             (attachment) => {
               const isImage =
-                attachment.fileUrl.match(
-                  /\.(jpg|jpeg|png|gif|webp)$/i
+                imageExtensions.test(
+                  attachment.fileName
+                ) ||
+                imageExtensions.test(
+                  attachment.fileUrl
+                );
+
+              const fileUrl =
+                resolveApiAssetUrl(
+                  attachment.fileUrl
                 );
 
               return (
@@ -145,19 +182,28 @@ export const IssueDetailPage = () => {
                   key={attachment.id}
                 >
                   {isImage ? (
-                    <img
-                      src={attachment.fileUrl}
-                      alt={
-                        attachment.fileName
-                      }
-                    />
+                    <a
+                      className="attachment-preview"
+                      href={fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <img
+                        src={fileUrl}
+                        alt={
+                          attachment.fileName
+                        }
+                      />
+                    </a>
                   ) : (
-                    <p>
-                      {
-                        attachment.fileName
-                      }
+                    <p className="attachment-file">
+                      Preview unavailable
                     </p>
                   )}
+
+                  <p className="attachment-name">
+                    {attachment.fileName}
+                  </p>
 
                   <button
                     onClick={() =>

@@ -149,12 +149,21 @@ public class IssueService : IIssueService
 
     public async Task DeleteIssueAsync(Guid id)
     {
-        var issue = await _issueRepository.GetByIdAsync(id);
+        var issue = await _context.Issues
+            .Include(i => i.Attachments)
+            .FirstOrDefaultAsync(i => i.Id == id);
 
         if (issue == null)
         {
             throw new NotFoundException(nameof(Issue), id);
         }
+
+        foreach (var attachment in issue.Attachments)
+        {
+            DeleteAttachmentFile(attachment.FilePath);
+        }
+
+        DeleteIssueUploadsDirectory(id);
 
         await _issueRepository.DeleteAsync(issue);
     }
@@ -211,12 +220,30 @@ public class IssueService : IIssueService
             throw new NotFoundException(nameof(Attachment), attachmentId);
         }
 
-        // Delete file
-        if (File.Exists(attachment.FilePath))
-        {
-            File.Delete(attachment.FilePath);
-        }
+        DeleteAttachmentFile(attachment.FilePath);
 
         await _attachmentRepository.DeleteAsync(attachment);
+    }
+
+    private static void DeleteAttachmentFile(string filePath)
+    {
+        if (!string.IsNullOrWhiteSpace(filePath) &&
+            File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+    }
+
+    private static void DeleteIssueUploadsDirectory(Guid issueId)
+    {
+        var uploadsPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "uploads",
+            issueId.ToString());
+
+        if (Directory.Exists(uploadsPath))
+        {
+            Directory.Delete(uploadsPath, recursive: true);
+        }
     }
 }

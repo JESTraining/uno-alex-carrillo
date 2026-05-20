@@ -1,5 +1,9 @@
 import { axiosClient } from "./api/axiosClient";
-import type { Issue } from "../types/issue";
+import type {
+  CreateIssueRequest,
+  Issue,
+  UpdateIssueRequest,
+} from "../types/issue";
 import type { PaginatedResponse } from "../types/pagination";
 
 export const issueService = {
@@ -13,12 +17,25 @@ export const issueService = {
     return response.data;
   },
 
-  update: async (id: string, data: Partial<Issue>) => {
-    const response = await axiosClient.put(
+  create: async (data: CreateIssueRequest) => {
+    const response = await axiosClient.post<Issue>(
+      "/issues",
+      data
+    );
+
+    return response.data;
+  },
+
+  update: async (id: string, data: UpdateIssueRequest) => {
+    const response = await axiosClient.put<Issue>(
       `/issues/${id}`,
       data
     );
 
     return response.data;
+  },
+
+  delete: async (id: string) => {
+    await axiosClient.delete(`/issues/${id}`);
   },
 };

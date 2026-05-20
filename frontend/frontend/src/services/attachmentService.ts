@@ -31,4 +31,13 @@ export const attachmentService = {
 
     return response.data;
   },
+
+  delete: async (
+    issueId: string,
+    attachmentId: string
+  ) => {
+    await axiosClient.delete(
+      `/issues/${issueId}/attachments/${attachmentId}`
+    );
+  },
 };

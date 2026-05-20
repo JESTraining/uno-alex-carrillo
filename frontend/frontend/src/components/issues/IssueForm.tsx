@@ -1,48 +1,129 @@
 import { useForm } from "react-hook-form";
-import type { Issue } from "../../types/issue";
+import type { Assignee } from "../../types/assignee";
+import {
+  IssuePriority,
+  IssueStatus,
+  type Issue,
+  type UpdateIssueRequest,
+} from "../../types/issue";
 
 type Props = {
   issue: Issue;
-  onSubmit: (data: Partial<Issue>) => void;
+  assignees: Assignee[];
+  assigneesLoading: boolean;
+  onSubmit: (data: UpdateIssueRequest) => Promise<void>;
 };
 
 export const IssueForm = ({
   issue,
+  assignees,
+  assigneesLoading,
   onSubmit,
 }: Props) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<Issue>({
-    defaultValues: issue,
+    formState: { isSubmitting },
+  } = useForm<UpdateIssueRequest>({
+    defaultValues: {
+      status: issue.status,
+      priority: issue.priority,
+      assigneeId: issue.assigneeId || "",
+    },
   });
 
+  const handleFormSubmit = (
+    values: UpdateIssueRequest
+  ) => {
+    return onSubmit({
+      ...values,
+      assigneeId:
+        values.assigneeId || null,
+    });
+  };
+
   return (
-    <form
-      className="form"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <div className="form-field">
-        <label>Title</label>
+    <div className="issue-detail-grid">
+      <section className="issue-summary">
+        <span className="eyebrow">
+          Issue
+        </span>
+        <h2>{issue.title}</h2>
+        <p>
+          {issue.description ||
+            "No description provided."}
+        </p>
+      </section>
 
-        <input
-          {...register("title", {
-            required: true,
-            minLength: 3,
-          })}
-        />
+      <form
+        className="form"
+        onSubmit={handleSubmit(handleFormSubmit)}
+      >
+        <div className="form-field">
+          <label>Status</label>
+          <select
+            {...register("status", {
+              valueAsNumber: true,
+            })}
+          >
+            <option value={IssueStatus.OPEN}>
+              Open
+            </option>
+            <option value={IssueStatus.IN_PROGRESS}>
+              In Progress
+            </option>
+            <option value={IssueStatus.CLOSED}>
+              Closed
+            </option>
+          </select>
+        </div>
 
-        {errors.title && (
-          <p className="form-error">
-            Title must have at least 3 characters
-          </p>
-        )}
-      </div>
+        <div className="form-field">
+          <label>Priority</label>
+          <select
+            {...register("priority", {
+              valueAsNumber: true,
+            })}
+          >
+            <option value={IssuePriority.LOW}>
+              Low
+            </option>
+            <option value={IssuePriority.MEDIUM}>
+              Medium
+            </option>
+            <option value={IssuePriority.HIGH}>
+              High
+            </option>
+          </select>
+        </div>
 
-      <button type="submit">
-        Save
-      </button>
-    </form>
+        <div className="form-field">
+          <label>Assignee</label>
+          <select
+            disabled={assigneesLoading}
+            {...register("assigneeId")}
+          >
+            <option value="">
+              Unassigned
+            </option>
+            {assignees.map((assignee) => (
+              <option
+                key={assignee.id}
+                value={assignee.id}
+              >
+                {assignee.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+        >
+          Save changes
+        </button>
+      </form>
+    </div>
   );
 };

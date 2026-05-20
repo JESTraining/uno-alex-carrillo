@@ -22,12 +22,31 @@ export interface Attachment {
   fileUrl: string;
 }
 
+export interface IssueAssignee {
+  id: string;
+  name: string;
+  email?: string;
+}
+
 export interface Issue {
   id: string;
   title: string;
   description?: string;
   priority: IssuePriority;
   status: IssueStatus;
-  assignee?: string;
+  assigneeId?: string;
+  assignee?: IssueAssignee;
   attachments: Attachment[];
+}
+
+export interface CreateIssueRequest {
+  title: string;
+  description: string;
+  priority: IssuePriority;
+}
+
+export interface UpdateIssueRequest {
+  status: IssueStatus;
+  priority: IssuePriority;
+  assigneeId?: string | null;
 }

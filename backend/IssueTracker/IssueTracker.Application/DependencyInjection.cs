@@ -23,6 +23,10 @@ public static class DependencyInjection
             IIssueService,
             IssueService>();
 
+        services.AddScoped<
+            IAssigneeService,
+            AssigneeService>();
+
         // Register authentication service
         services.AddScoped<
             IAuthenticationService,

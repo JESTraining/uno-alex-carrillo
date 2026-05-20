@@ -24,6 +24,9 @@ public class IssueMappingProfile : Profile
 
         CreateMap<User, UserDto>();
 
-        CreateMap<Attachment, AttachmentDto>();
+        CreateMap<Attachment, AttachmentDto>()
+            .ForMember(dest => dest.FileUrl,
+                opt => opt.MapFrom(src =>
+                    $"/uploads/{src.IssueId}/{Uri.EscapeDataString(Path.GetFileName(src.FilePath))}"));
     }
 }

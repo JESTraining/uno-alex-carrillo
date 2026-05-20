@@ -16,9 +16,14 @@ export const Navbar = () => {
 
   return (
     <nav className="app-nav">
-      <h2 className="app-nav__brand">
-        Issue Tracker
-      </h2>
+      <div className="app-nav__brand">
+        <span className="app-nav__mark">
+          IT
+        </span>
+        <span>
+          Issue Tracker
+        </span>
+      </div>
 
       <div className="app-nav__actions">
         <span className="app-nav__user">

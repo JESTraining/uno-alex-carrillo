@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { AppFooter } from "../components/layout/AppFooter";
 import { Navbar } from "../components/layout/Navbar";
 
 type Props = {
@@ -18,9 +19,12 @@ export const ProtectedRoute = ({
   }
 
   return (
-    <>
+    <div className="app-shell">
       <Navbar />
-      {children}
-    </>
+      <main className="app-main">
+        {children}
+      </main>
+      <AppFooter />
+    </div>
   );
 };
