@@ -1,5 +1,7 @@
+using FluentValidation;
 using IssueTracker.Application.DTOs;
 using IssueTracker.Application.Interfaces;
+using IssueTracker.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,14 +13,28 @@ namespace IssueTracker.Infrastructure.Services;
 public class AuthenticationService : IAuthenticationService
 {
     private readonly IConfiguration _configuration;
+    private readonly IValidator<LoginRequestDto> _loginValidator;
 
-    public AuthenticationService(IConfiguration configuration)
+    public AuthenticationService(
+        IConfiguration configuration,
+        IValidator<LoginRequestDto> loginValidator)
     {
         _configuration = configuration;
+        _loginValidator = loginValidator;
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
     {
+        var validationResult = await _loginValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            var errors = string.Join(
+                " ",
+                validationResult.Errors.Select(error => error.ErrorMessage));
+
+            throw new BadRequestException(errors);
+        }
+
         var testUserEmail = _configuration["TestUser:Email"];
         var testUserPassword = _configuration["TestUser:Password"];
 

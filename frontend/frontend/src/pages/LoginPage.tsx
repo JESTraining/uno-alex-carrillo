@@ -9,8 +9,14 @@ export const LoginPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginRequest>();
+    formState: {
+      errors,
+      isValid,
+      isSubmitting,
+    },
+  } = useForm<LoginRequest>({
+    mode: "onChange",
+  });
 
   const onSubmit = async (
     data: LoginRequest
@@ -48,40 +54,56 @@ export const LoginPage = () => {
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="form-field">
-            <label>Email</label>
+            <label htmlFor="login-email">
+              Email
+            </label>
 
             <input
+              id="login-email"
               type="email"
               {...register("email", {
-                required: true,
+                required: "Email is required",
+                pattern: {
+                  value:
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message:
+                    "Enter a valid email address",
+                },
               })}
             />
 
             {errors.email && (
               <p className="form-error">
-                Email is required
+                {errors.email.message}
               </p>
             )}
           </div>
 
           <div className="form-field">
-            <label>Password</label>
+            <label htmlFor="login-password">
+              Password
+            </label>
 
             <input
+              id="login-password"
               type="password"
               {...register("password", {
-                required: true,
+                required:
+                  "Password is required",
               })}
             />
 
             {errors.password && (
               <p className="form-error">
-                Password is required
+                {errors.password.message}
               </p>
             )}
           </div>
 
-          <button type="submit">
+          <button
+            type="submit"
+            disabled={!isValid || isSubmitting}
+          >
             Login
           </button>
         </form>
