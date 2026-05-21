@@ -1,5 +1,4 @@
 ﻿using IssueTracker.Api.Utils;
-using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
 namespace IssueTracker.Api.Extensions;

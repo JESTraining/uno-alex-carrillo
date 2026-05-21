@@ -1,9 +1,6 @@
-using FluentAssertions;
 using IssueTracker.Application.Services;
 using IssueTracker.Application.Interfaces;
 using IssueTracker.Domain.Entities;
-using Moq;
-using Xunit;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;

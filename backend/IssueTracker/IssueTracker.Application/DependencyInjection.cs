@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using IssueTracker.Application.Interfaces;
 using IssueTracker.Application.Services;
 using IssueTracker.Infrastructure.Services;

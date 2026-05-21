@@ -4,12 +4,8 @@ using IssueTracker.Application.Interfaces;
 using IssueTracker.Application.Services;
 using IssueTracker.Domain.Entities;
 using IssueTracker.Domain.Enums;
-using Moq;
-using Xunit;
-using FluentAssertions;
 using System.Threading.Tasks;
 using System;
-using System.Collections.Generic;
 
 namespace IssueTracker.Tests.Application.Services;
 

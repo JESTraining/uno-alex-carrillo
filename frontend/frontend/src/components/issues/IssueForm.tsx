@@ -56,7 +56,7 @@ export const IssueForm = ({
       </section>
 
       <form
-        className="form"
+        className="form issue-edit-form"
         onSubmit={handleSubmit(handleFormSubmit)}
       >
         <div className="form-field">

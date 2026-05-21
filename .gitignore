@@ -364,3 +364,36 @@ index.js
 # dora code context index
 .dora/
 obj/
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Frontend dependencies and build artifacts
+**/node_modules/
+**/dist/
+**/.vite/
+**/coverage/
+**/.vitest/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# .NET build artifacts
+**/[Bb]in/
+**/[Oo]bj/
+**/TestResults/
+**/*.trx
+**/*.coverage
+**/*.coveragexml
+
+# Except this file
+!.gitignore
+
+# Runtime uploads and generated local files
+**/uploads/
+!screenshots/**
+!screenshots/.gitkeep

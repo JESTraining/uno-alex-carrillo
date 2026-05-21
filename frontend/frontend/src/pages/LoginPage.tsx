@@ -32,8 +32,8 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="container">
-      <div className="page-card">
+    <div className="login-page">
+      <div className="page-card login-card">
         <div className="page-header">
           <div>
             <h1>Login</h1>

@@ -1,9 +1,6 @@
-using FluentValidation;
 using IssueTracker.Application.DTOs;
 using IssueTracker.Application.Validators;
 using IssueTracker.Domain.Enums;
-using Xunit;
-using FluentAssertions;
 using System.Threading.Tasks;
 
 namespace IssueTracker.Tests.Application.Validators;

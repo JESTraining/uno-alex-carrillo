@@ -4,8 +4,10 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import type {
+  Attachment,
   Issue,
   UpdateIssueRequest,
 } from "../types/issue";
@@ -24,6 +26,11 @@ export const IssueDetailPage = () => {
   const navigate = useNavigate();
 
   const [issue, setIssue] = useState<Issue | null>(null);
+
+  const [
+    attachmentToDelete,
+    setAttachmentToDelete,
+  ] = useState<Attachment | null>(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -77,22 +84,23 @@ export const IssueDetailPage = () => {
   };
 
   const handleRemoveAttachment = async (
-    attachmentId: string
+    attachment: Attachment
   ) => {
     if (!issue || !id) return;
 
     await attachmentService.delete(
       id,
-      attachmentId
+      attachment.id
     );
 
     toast.success("Attachment removed successfully");
+    setAttachmentToDelete(null);
     setIssue({
       ...issue,
       attachments:
         issue.attachments.filter(
-          (attachment) =>
-            attachment.id !== attachmentId
+          (currentAttachment) =>
+            currentAttachment.id !== attachment.id
         ),
     });
   };
@@ -206,19 +214,80 @@ export const IssueDetailPage = () => {
                   </p>
 
                   <button
+                    className="icon-button icon-button--danger attachment-remove-button"
+                    type="button"
+                    aria-label={`Delete ${attachment.fileName}`}
+                    data-tooltip="Delete attachment"
                     onClick={() =>
-                      handleRemoveAttachment(
-                        attachment.id
+                      setAttachmentToDelete(
+                        attachment
                       )
                     }
                   >
-                    Remove
+                    <Trash2
+                      aria-hidden="true"
+                      size={18}
+                      strokeWidth={2.2}
+                    />
                   </button>
                 </div>
               );
             }
           )}
         </div>
+
+        {attachmentToDelete && (
+          <div className="modal-backdrop">
+            <div
+              className="modal modal--compact"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-attachment-title"
+            >
+              <div className="modal-header">
+                <div>
+                  <h2 id="delete-attachment-title">
+                    Delete attachment
+                  </h2>
+                  <p>
+                    This file will be permanently removed.
+                  </p>
+                </div>
+              </div>
+
+              <p className="modal-copy">
+                Are you sure you want to delete{" "}
+                <strong>
+                  {attachmentToDelete.fileName}
+                </strong>
+                ?
+              </p>
+
+              <div className="form-actions">
+                <button
+                  className="button button--secondary"
+                  type="button"
+                  onClick={() =>
+                    setAttachmentToDelete(null)
+                  }
+                >
+                  Cancel
+                </button>
+                <button
+                  className="button button--danger"
+                  type="button"
+                  onClick={() =>
+                    handleRemoveAttachment(
+                      attachmentToDelete
+                    )
+                  }
+                >
+                  Delete attachment
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

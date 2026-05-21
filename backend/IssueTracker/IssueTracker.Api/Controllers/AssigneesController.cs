@@ -1,7 +1,6 @@
 using IssueTracker.Application.DTOs;
 using IssueTracker.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IssueTracker.Api.Controllers;

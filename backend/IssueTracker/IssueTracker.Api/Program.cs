@@ -1,6 +1,8 @@
 using IssueTracker.Application;
 using IssueTracker.Infrastructure;
 using IssueTracker.Api.Extensions;
+using IssueTracker.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,12 @@ builder.Services.AddOpenApiDocumentation();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Global exception handling middleware
 app.UseGlobalExceptionMiddleware();

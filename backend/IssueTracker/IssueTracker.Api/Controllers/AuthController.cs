@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using IssueTracker.Application.DTOs;
 using IssueTracker.Application.Interfaces;
